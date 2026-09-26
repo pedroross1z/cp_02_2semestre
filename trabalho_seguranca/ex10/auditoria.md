@@ -1,0 +1,12 @@
+# Auditoria — app_vulneravel.py
+
+| # | Falha | OWASP 2025 | Impacto | Correção |
+|---|-------|-----------|---------|----------|
+| 1 | SQL Injection via f-string em `/api/usuarios/buscar` | A03 - Injection | Qualquer visitante lê, e com payload adequado altera, toda a tabela `usuarios` | Parametrizar com `%s` e passar o valor como argumento do `execute`, nunca concatenar no texto do SQL |
+| 2 | XSS refletido em `/perfil` (parâmetro `u` devolvido cru no HTML) | A03 - Injection | Um link malicioso executa JavaScript arbitrário no navegador de quem clicar, podendo roubar sessão | Renderizar com Jinja2 (`render_template_string`) para escapar o valor por padrão, nunca montar HTML por f-string |
+| 3 | `DELETE /api/usuarios/<id>` sem nenhuma autenticação | A01 - Broken Access Control | Qualquer pessoa na rede apaga qualquer usuário do sistema | Exigir header de API key válido e nível de acesso mínimo antes de executar o `DELETE` |
+| 4 | `debug=True` expõe traceback completo em `/api/relatorio` | A05 - Security Misconfiguration | Erro interno revela nomes de tabela, caminho do código e variáveis, ajudando o atacante a mapear o sistema | Desligar `debug` em produção e envolver a rota em `try/except` retornando `{"erro":"erro interno"}` |
+| 5 | `SELECT *` devolve a coluna `senha` para qualquer chamada de busca | A02 - Cryptographic Failures | Senha (ou hash) de todos os usuários listados fica exposta a quem fizer a busca | Selecionar explicitamente só as colunas necessárias (`id, nome`), nunca `SELECT *` em endpoint público |
+| 6 | Nenhum header de segurança em nenhuma resposta (ausência) | A05 - Security Misconfiguration | Sem `X-Content-Type-Options`, `X-Frame-Options` e CSP, o navegador fica livre para MIME-sniffing, clickjacking e execução de scripts de terceiros | Adicionar os headers em um `after_request` aplicado a toda resposta |
+| 7 | Senha do banco e `SENHA_MESTRA` hardcoded no código-fonte | A02 - Cryptographic Failures | Qualquer pessoa com acesso ao repositório (ou a um `git log`) tem a credencial de produção | Ler credenciais de variável de ambiente, nunca escrever segredo literal no código |
+| 8 | Nenhuma trilha de auditoria para nenhuma ação (ausência) | A09 - Security Logging and Monitoring Failures | Um `DELETE` bem-sucedido, autorizado ou não, não deixa nenhum rastro de quem fez o quê e quando | Registrar toda operação sensível (quem, o quê, quando, resultado) em uma trilha própria, auditável depois do fato |
