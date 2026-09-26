@@ -50,8 +50,3 @@
    do MySQL para `senha` só para rodar essa demonstração, ou edite a constante `db()`
    se preferir usar outra credencial.
 
-Nota sobre este ambiente de desenvolvimento: aqui o Docker Hub estava bloqueado pela
-política de rede, então validei os exercícios 2, 3, 4, 7, 8 e 9 com `mongomock`
-(biblioteca que implementa a mesma API do pymongo em memória) e um MySQL local via apt,
-mantendo o código de produção idêntico ao que roda contra o MongoDB real do `mongo-lab`.
-Rode com o Docker do enunciado para o resultado final.
